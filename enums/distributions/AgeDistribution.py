@@ -1,0 +1,60 @@
+from enums.groups.AgeGroup import AgeGroup
+from enums.State import State
+
+AgeDistribution = {
+    State.SUSCEPTIBLE: {
+        AgeGroup.from00to09: 0.00,
+        AgeGroup.from10to19: 0.05,
+        AgeGroup.from20to29: 0.40,
+        AgeGroup.from30to39: 0.30,
+        AgeGroup.from40to49: 0.15,
+        AgeGroup.from50to59: 0.07,
+        AgeGroup.from60to69: 0.03,
+        AgeGroup.from70to79: 0.00,
+        AgeGroup.from80toXX: 0.00,
+    },
+    State.EXPOSED: {
+        AgeGroup.from00to09: 0.02,
+        AgeGroup.from10to19: 0.10,
+        AgeGroup.from20to29: 0.30,
+        AgeGroup.from30to39: 0.25,
+        AgeGroup.from40to49: 0.15,
+        AgeGroup.from50to59: 0.10,
+        AgeGroup.from60to69: 0.05,
+        AgeGroup.from70to79: 0.02,
+        AgeGroup.from80toXX: 0.01,
+    },
+    State.INFECTED: {
+        AgeGroup.from00to09: 0.01,
+        AgeGroup.from10to19: 0.26,
+        AgeGroup.from20to29: 0.41,
+        AgeGroup.from30to39: 0.20,
+        AgeGroup.from40to49: 0.07,
+        AgeGroup.from50to59: 0.03,
+        AgeGroup.from60to69: 0.01,
+        AgeGroup.from70to79: 0.01,
+        AgeGroup.from80toXX: 0.00,
+    },
+    State.DOUBTFUL: {
+        AgeGroup.from00to09: 0.00,
+        AgeGroup.from10to19: 0.05,
+        AgeGroup.from20to29: 0.35,
+        AgeGroup.from30to39: 0.35,
+        AgeGroup.from40to49: 0.15,
+        AgeGroup.from50to59: 0.05,
+        AgeGroup.from60to69: 0.03,
+        AgeGroup.from70to79: 0.02,
+        AgeGroup.from80toXX: 0.00,
+    },
+    State.RECOVERED: {
+        AgeGroup.from00to09: 0.00,
+        AgeGroup.from10to19: 0.10,
+        AgeGroup.from20to29: 0.35,
+        AgeGroup.from30to39: 0.30,
+        AgeGroup.from40to49: 0.15,
+        AgeGroup.from50to59: 0.07,
+        AgeGroup.from60to69: 0.02,
+        AgeGroup.from70to79: 0.01,
+        AgeGroup.from80toXX: 0.00,
+    }
+}
