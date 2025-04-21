@@ -21,7 +21,8 @@ class UserAgent:
         self.age_group = age_group
         self.sex_group = sex_group
         self.education_group = education_group
-        self.state = State.SUSCEPTIBLE  
+        self.state = State.SUSCEPTIBLE 
+        self.neighbors = []
 
     def step(self):
         """
@@ -83,3 +84,7 @@ class UserAgent:
         return (f"UserAgent [ID: {self.unique_id}, Age Group: {self.age_group.name}, "
                 f"Sex Group: {self.sex_group.name}, Education Group: {self.education_group.name}, "
                   f"State: {self.state.name}]")
+    def add_neighbor(self, other_agent):
+        if not hasattr(self, "neighbors"):
+            self.neighbors = []
+        self.neighbors.append(other_agent)
