@@ -54,7 +54,7 @@ model_params = {
         max=1000,
         step=10,
     ),
-    "initial_infected": Slider(
+    "initial_outbreak_size": Slider(
         label="Initial Infected",
         value=5,
         min=1,

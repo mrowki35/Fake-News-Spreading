@@ -33,7 +33,7 @@ def number_recovered(model):
 class DisinformationModel(Model):
     def __init__(
         self,
-        num_nodes=10,
+        num_agents=100,
         avg_node_degree=3,
         initial_outbreak_size=1,
         # demographic influence weights
@@ -51,7 +51,7 @@ class DisinformationModel(Model):
         super().__init__(seed=seed)
 
         # Model parameters
-        self.num_nodes = num_nodes
+        self.num_nodes = num_agents
         self.age_weight = age_weight
         self.education_weight = education_weight
         self.sex_weight = sex_weight
@@ -62,14 +62,13 @@ class DisinformationModel(Model):
         self.threshold_IR = threshold_IR
         self.threshold_DE = threshold_DE
 
-        self.initial_outbreak_size = min(initial_outbreak_size, num_nodes)
+        self.initial_outbreak_size = min(initial_outbreak_size, num_agents)
 
         # Build graph and network
-        prob = avg_node_degree / num_nodes
-        graph = nx.erdos_renyi_graph(n=num_nodes, p=prob)
+        prob = avg_node_degree / num_agents
+        graph = nx.erdos_renyi_graph(n=num_agents, p=prob)
         self.grid = Network(graph, capacity=1, random=self.random)
 
-        # Data collection
         self.datacollector = DataCollector(
             {
                 "Infected": number_infected,
