@@ -1,90 +1,90 @@
-import random
+from mesa.experimental.cell_space.cell_agent import FixedAgent
 from enums.distributions.AgeDistribution import AgeDistribution
 from enums.distributions.EducationDistribution import EducationDistribution
 from enums.State import State
 
-
-class UserAgent:
-    def __init__(self, unique_id, model, age_group, sex_group, education_group):
-        """
-        Initializes a user agent.
-
-        Args:
-            unique_id (int): Unique identifier for the agent.
-            model (DisinformationModel): Reference to the model.
-            age_group (AgeGroup): Age group of the agent.
-            sex_group (SexGroup): Sex of the agent.
-            education_group (EducationGroup): Education level of the agent.
-        """
+class UserAgent(FixedAgent):
+    def __init__(self, model, initial_state, unique_id, age_group, sex_group, education_group,cell):
+        super().__init__(model)
+        self.state = initial_state
         self.unique_id = unique_id
-        self.model = model
         self.age_group = age_group
         self.sex_group = sex_group
         self.education_group = education_group
-        self.state = State.SUSCEPTIBLE 
-        self.neighbors = []
+        self.cell = cell
+
+    def get_neighbor_counts(self):
+        counts = {state: 0 for state in State}
+        for agent in self.cell.neighborhood.agents:
+            counts[agent.state] += 1
+        N = sum(counts.values())
+        return counts, N
+
+
+    def calculate_transition_score(self, counts, N, signs):
+        a = self.model.age_weight
+        b = self.model.education_weight
+        c = self.model.sex_weight
+
+        # Lookup distribution values based on agent's state and group
+        age_score = AgeDistribution[self.state][self.age_group] * a * self.random.uniform(0.9, 1)
+        edu_score = EducationDistribution[self.state][self.education_group] * b * self.random.uniform(0.9, 1)
+        sex_score = self.sex_group * c * self.random.uniform(0.05, 0.1)
+
+        neighbor_score = sum(
+            (signs[state] * counts[state] / N) if N > 0 else 0
+            for state in signs
+        )
+
+        return age_score + edu_score + sex_score + neighbor_score
 
     def step(self):
-        """
-        Method executed in each simulation step.
-        Determines state transitions based on probabilities.
-        """
+        counts, N = self.get_neighbor_counts()
+
         if self.state == State.SUSCEPTIBLE:
-            self._susceptible_to_exposed()
+            # Transition S -> E
+            signs = {State.EXPOSED: +1, State.INFECTED: +1, State.DOUBTFUL: -1, State.RECOVERED: -1}
+            score = self.calculate_transition_score(counts, N, signs)
+            if score > self.model.threshold_SE:
+                self.state = State.EXPOSED
+
         elif self.state == State.EXPOSED:
-            self._exposed_transition()
+            # Transition E -> I
+            signs_EI = {State.EXPOSED: +1, State.INFECTED: +1, State.DOUBTFUL: -1, State.RECOVERED: -1}
+            score_EI = self.calculate_transition_score(counts, N, signs_EI)
+            if score_EI > self.model.threshold_EI:
+                self.state = State.INFECTED
+                return
+
+            # Transition E -> D
+            signs_ED = {State.EXPOSED: -1, State.INFECTED: -1, State.DOUBTFUL: +1, State.RECOVERED: +1}
+            score_ED = self.calculate_transition_score(counts, N, signs_ED)
+            if score_ED > self.model.threshold_ED:
+                self.state = State.DOUBTFUL
+
         elif self.state == State.INFECTED:
-            self._infected_to_recovered()
+            # Transition I -> R
+            signs = {
+                State.EXPOSED: -1,
+                State.INFECTED: -1,
+                State.DOUBTFUL: +1,
+                State.RECOVERED: +1,
+                State.SUSCEPTIBLE: -1
+            }
+            score = self.calculate_transition_score(counts, N, signs)
+            if score > self.model.threshold_IR:
+                self.state = State.RECOVERED
+
         elif self.state == State.DOUBTFUL:
-            self._doubtful_to_exposed()
-        # RECOVERED is a terminal state; no transitions
+            # Transition D -> E
+            signs = {
+                State.EXPOSED: +1,
+                State.INFECTED: +1,
+                State.DOUBTFUL: -1,
+                State.RECOVERED: -1,
+                State.SUSCEPTIBLE: +1
+            }
+            score = self.calculate_transition_score(counts, N, signs)
+            if score > self.model.threshold_DE:
+                self.state = State.EXPOSED
 
-    def _susceptible_to_exposed(self):
-        """
-        Transition from S (Susceptible) to E (Exposed) with probability alpha adjusted by attributes.
-        """
-        res = random.random(0.9,1.0) * self.model.a*AgeDistribution.get(self.state).get(self.age_group)
-        res += random.random(0.9,1.0) * self.model.b*EducationDistribution.get(self.state).get(self.education_group)
-        #res += 
-
-        if self.model.susceptible_threshold < res:
-            self.state = State.EXPOSED
-
-    def _exposed_transition(self):
-        pass
- 
-
-    def _infected_to_recovered(self):
-        pass
-
-    def _doubtful_to_exposed(self):
-        pass
-
-    def __repr__(self):
-        return (f"UserAgent(id={self.unique_id}, age_group={self.age_group.name}, "
-                f"sex_group={self.sex_group.name}, education_group={self.education_group.name}, "
-                f"social_platform={self.social_platform.name}, state={self.state.name})")
-
-    def to_dict(self):
-        """
-        Returns a dictionary representation of the UserAgent.
-        """
-        return {
-            "ID": self.unique_id,
-            "Age Group": self.age_group.name,
-            "Sex Group": self.sex_group.name,
-            "Education Group": self.education_group.name,
-            "State": self.state.name
-        }
-
-    def to_string(self):
-        """
-        Returns a detailed string representation of the UserAgent.
-        """
-        return (f"UserAgent [ID: {self.unique_id}, Age Group: {self.age_group.name}, "
-                f"Sex Group: {self.sex_group.name}, Education Group: {self.education_group.name}, "
-                  f"State: {self.state.name}]")
-    def add_neighbor(self, other_agent):
-        if not hasattr(self, "neighbors"):
-            self.neighbors = []
-        self.neighbors.append(other_agent)
