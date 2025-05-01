@@ -29,7 +29,6 @@ def agent_portrayal(agent):
         "tooltip": f"Agent {agent.unique_id}<br>State: {agent.state.name}",
     }
 
-# Optional summary component
 """
 def get_model_summary(model):
     ratio = model.resistant_susceptible_ratio() if hasattr(model, "resistant_susceptible_ratio") else None
@@ -56,6 +55,27 @@ model_params = {
     ),
     "initial_outbreak_size": Slider(
         label="Initial Infected",
+        value=5,
+        min=1,
+        max=100,
+        step=1,
+    ),
+    "initial_exposed_size": Slider(
+        label="Initial Exposed",
+        value=5,
+        min=1,
+        max=100,
+        step=1,
+    ),
+    "initial_doubtful_size": Slider(
+        label="Initial Doubtful",
+        value=5,
+        min=1,
+        max=100,
+        step=1,
+    ),
+    "initial_recovered_size": Slider(
+        label="Initial Recovered",
         value=5,
         min=1,
         max=100,

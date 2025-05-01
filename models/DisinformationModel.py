@@ -36,6 +36,9 @@ class DisinformationModel(Model):
         num_agents=100,
         avg_node_degree=3,
         initial_outbreak_size=1,
+        initial_exposed_size=15,
+        initial_doubtful_size=15,
+        initial_recovered_size=10,
         # demographic influence weights
         age_weight=1.0,
         education_weight=1.0,
@@ -50,8 +53,7 @@ class DisinformationModel(Model):
     ):
         super().__init__(seed=seed)
 
-        # Model parameters
-        self.num_nodes = num_agents
+        self.num_agents = num_agents
         self.age_weight = age_weight
         self.education_weight = education_weight
         self.sex_weight = sex_weight
@@ -62,9 +64,15 @@ class DisinformationModel(Model):
         self.threshold_IR = threshold_IR
         self.threshold_DE = threshold_DE
 
-        self.initial_outbreak_size = min(initial_outbreak_size, num_agents)
+        # Safety check: total of all initial states cannot exceed total agents
+        total_initial = (
+            initial_outbreak_size + initial_exposed_size +
+            initial_doubtful_size + initial_recovered_size
+        )
+        if total_initial > num_agents:
+            raise ValueError("Initial state counts exceed total number of agents.")
 
-        # Build graph and network
+        # Build network
         prob = avg_node_degree / num_agents
         graph = nx.erdos_renyi_graph(n=num_agents, p=prob)
         self.grid = Network(graph, capacity=1, random=self.random)
@@ -79,8 +87,9 @@ class DisinformationModel(Model):
             }
         )
 
-        # Create agents
-        for node, cell in zip(graph.nodes, self.grid.all_cells):
+        # Create all agents as SUSCEPTIBLE first
+        all_cells = list(self.grid.all_cells)
+        for node, cell in zip(graph.nodes, all_cells):
             age_group = self.random.choice(list(AgeGroup))
             education_group = self.random.choice(list(EducationGroup))
             sex_group = self.random.choice([0, 1])  # 0 = female, 1 = male
@@ -96,13 +105,29 @@ class DisinformationModel(Model):
             )
             cell.agents.append(agent)
 
-        # Infect a few
-        infected_cells = CellCollection(
-            self.random.sample(list(self.grid.all_cells), self.initial_outbreak_size),
-            random=self.random,
-        )
-        for a in infected_cells.agents:
-            a.state = State.INFECTED
+        # Assign initial states to random agents
+        state_assignments = [
+            (initial_outbreak_size, State.INFECTED),
+            (initial_exposed_size, State.EXPOSED),
+            (initial_doubtful_size, State.DOUBTFUL),
+            (initial_recovered_size, State.RECOVERED),
+        ]
+
+        remaining_cells = CellCollection(all_cells, random=self.random)
+
+        for count, state in state_assignments:
+            if count > 0:
+                selected = CellCollection(
+                    self.random.sample(list(remaining_cells), count),
+                    random=self.random
+                )
+                for a in selected.agents:
+                    a.state = state
+                # Remove already assigned cells from the pool
+                remaining_cells = CellCollection(
+                    [c for c in remaining_cells if c not in selected],
+                    random=self.random
+                )
 
         self.running = True
         self.datacollector.collect(self)
