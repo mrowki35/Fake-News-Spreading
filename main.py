@@ -14,7 +14,6 @@ from mesa.visualization import (
     make_space_component,
 )
 
-# Custom visualization for each agent
 def agent_portrayal(agent):
     node_color_dict = {
         State.SUSCEPTIBLE: "tab:green",
@@ -46,6 +45,7 @@ model_params = {
         "value": 42,
         "label": "Random Seed",
     },
+
     "num_agents": Slider(
         label="Number of Agents",
         value=100,
