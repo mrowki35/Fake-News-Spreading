@@ -45,21 +45,21 @@ class UserAgent(FixedAgent):
             # Transition S -> E
             signs = {State.EXPOSED: +1, State.INFECTED: +1, State.DOUBTFUL: -1, State.RECOVERED: -1}
             score = self.calculate_transition_score(counts, N, signs)
-            if score > self.model.threshold_SE:
+            if score > float(self.model.threshold_SE):
                 self.state = State.EXPOSED
 
         elif self.state == State.EXPOSED:
             # Transition E -> I
             signs_EI = {State.EXPOSED: +1, State.INFECTED: +1, State.DOUBTFUL: -1, State.RECOVERED: -1}
             score_EI = self.calculate_transition_score(counts, N, signs_EI)
-            if score_EI > self.model.threshold_EI:
+            if score_EI > float(self.model.threshold_EI):
                 self.state = State.INFECTED
                 return
 
             # Transition E -> D
             signs_ED = {State.EXPOSED: -1, State.INFECTED: -1, State.DOUBTFUL: +1, State.RECOVERED: +1}
             score_ED = self.calculate_transition_score(counts, N, signs_ED)
-            if score_ED > self.model.threshold_ED:
+            if score_ED > float(self.model.threshold_ED):
                 self.state = State.DOUBTFUL
 
         elif self.state == State.INFECTED:
@@ -72,7 +72,7 @@ class UserAgent(FixedAgent):
                 State.SUSCEPTIBLE: -1
             }
             score = self.calculate_transition_score(counts, N, signs)
-            if score > self.model.threshold_IR:
+            if score > float(self.model.threshold_IR):
                 self.state = State.RECOVERED
 
         elif self.state == State.DOUBTFUL:
@@ -85,6 +85,6 @@ class UserAgent(FixedAgent):
                 State.SUSCEPTIBLE: +1
             }
             score = self.calculate_transition_score(counts, N, signs)
-            if score > self.model.threshold_DE:
+            if score > float(self.model.threshold_DE):
                 self.state = State.EXPOSED
 

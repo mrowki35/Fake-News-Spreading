@@ -45,7 +45,31 @@ model_params = {
         "value": 42,
         "label": "Random Seed",
     },
-
+    "threshold_SE": {
+        "type": "InputText",
+        "value": 1,
+        "label": "threshold_SE",
+    },
+    "threshold_EI": {
+        "type": "InputText",
+        "value": 1,
+        "label": "threshold_EI",
+    },
+    "threshold_ED": {
+        "type": "InputText",
+        "value": 1,
+        "label": "threshold_ED",
+    },
+    "threshold_IR": {
+        "type": "InputText",
+        "value": 1,
+        "label": "threshold_IR",
+    },
+    "threshold_DE": {
+        "type": "InputText",
+        "value": 1,
+        "label": "threshold_ED",
+    },
     "num_agents": Slider(
         label="Number of Agents",
         value=100,
