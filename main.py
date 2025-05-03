@@ -126,6 +126,13 @@ model_params = {
         max=1.0,
         step=0.05,
     ),
+    "moderation": Slider(
+        label="Moderation and Fake News Detection",
+        value=0,
+        min=0,
+        max=1,
+        step=1
+    ),
 }
 
 # Visualization components

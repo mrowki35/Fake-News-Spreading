@@ -31,6 +31,8 @@ def number_recovered(model):
 
 
 class DisinformationModel(Model):
+    MODERATION_INFLUENCE = 2.0
+
     def __init__(
         self,
         num_agents=100,
@@ -50,6 +52,8 @@ class DisinformationModel(Model):
         threshold_IR=1.3,
         threshold_DE=1.4,
         seed=None,
+        # switches for scenarios
+        moderation=0
     ):
         super().__init__(seed=seed)
 
@@ -58,11 +62,14 @@ class DisinformationModel(Model):
         self.education_weight = education_weight
         self.sex_weight = sex_weight
 
-        self.threshold_SE = threshold_SE
-        self.threshold_EI = threshold_EI
-        self.threshold_ED = threshold_ED
-        self.threshold_IR = threshold_IR
-        self.threshold_DE = threshold_DE
+        if moderation:
+            self.threshold_SE = float(threshold_SE) * DisinformationModel.MODERATION_INFLUENCE
+        else:
+            self.threshold_SE = float(threshold_SE)
+        self.threshold_EI = float(threshold_EI)
+        self.threshold_ED = float(threshold_ED)
+        self.threshold_IR = float(threshold_IR)
+        self.threshold_DE = float(threshold_DE)
 
         # Safety check: total of all initial states cannot exceed total agents
         total_initial = (
