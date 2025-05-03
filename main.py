@@ -68,7 +68,7 @@ model_params = {
     "threshold_DE": {
         "type": "InputText",
         "value": 1,
-        "label": "threshold_ED",
+        "label": "threshold_DE",
     },
     "num_agents": Slider(
         label="Number of Agents",
@@ -76,6 +76,13 @@ model_params = {
         min=10,
         max=1000,
         step=10,
+    ),
+    "avg_node_degree": Slider(
+        label="Average Number of Connections",
+        value=3,
+        min=3,
+        max=8,
+        step=1,
     ),
     "initial_outbreak_size": Slider(
         label="Initial Infected",
@@ -125,6 +132,13 @@ model_params = {
         min=0.0,
         max=1.0,
         step=0.05,
+    ),
+    "moderation": Slider(
+        label="Moderation and Fake News Detection",
+        value=0,
+        min=0,
+        max=1,
+        step=1
     ),
 }
 
