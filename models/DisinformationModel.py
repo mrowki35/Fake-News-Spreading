@@ -32,6 +32,9 @@ def number_recovered(model):
 
 class DisinformationModel(Model):
     MODERATION_INFLUENCE = 2.0
+    graph = None
+    prob = 0.0
+    seed = 0
 
     def __init__(
         self,
@@ -81,8 +84,11 @@ class DisinformationModel(Model):
 
         # Build network
         prob = avg_node_degree / num_agents
-        graph = nx.erdos_renyi_graph(n=num_agents, p=prob)
-        self.grid = Network(graph, capacity=1, random=self.random)
+        if DisinformationModel.graph is None or num_agents != DisinformationModel.graph.number_of_nodes() or DisinformationModel.prob != prob or DisinformationModel.seed != seed:
+            DisinformationModel.seed = seed
+            DisinformationModel.prob = prob
+            DisinformationModel.graph = nx.erdos_renyi_graph(n=num_agents, p=prob)
+        self.grid = Network(DisinformationModel.graph, capacity=1, random=self.random)
 
         self.datacollector = DataCollector(
             {
@@ -96,7 +102,7 @@ class DisinformationModel(Model):
 
         # Create all agents as SUSCEPTIBLE first
         all_cells = list(self.grid.all_cells)
-        for node, cell in zip(graph.nodes, all_cells):
+        for node, cell in zip(DisinformationModel.graph.nodes, all_cells):
             age_group = self.random.choice(list(AgeGroup))
             education_group = self.random.choice(list(EducationGroup))
             sex_group = self.random.choice([0, 1])  # 0 = female, 1 = male
