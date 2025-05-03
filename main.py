@@ -68,7 +68,7 @@ model_params = {
     "threshold_DE": {
         "type": "InputText",
         "value": 1,
-        "label": "threshold_ED",
+        "label": "threshold_DE",
     },
     "num_agents": Slider(
         label="Number of Agents",
