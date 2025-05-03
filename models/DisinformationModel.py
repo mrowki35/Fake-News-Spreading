@@ -87,7 +87,21 @@ class DisinformationModel(Model):
         if DisinformationModel.graph is None or num_agents != DisinformationModel.graph.number_of_nodes() or DisinformationModel.prob != prob or DisinformationModel.seed != seed:
             DisinformationModel.seed = seed
             DisinformationModel.prob = prob
-            DisinformationModel.graph = nx.erdos_renyi_graph(n=num_agents, p=prob)
+
+            # Create a base graph with (num_agents - 1) normal nodes
+            base_graph = nx.erdos_renyi_graph(n=num_agents - 1, p=prob, seed=seed)
+
+            # Add the super user node
+            super_user_id = num_agents - 1  # Last ID
+            base_graph.add_node(super_user_id)
+
+            # Connect the super user to 50 random other nodes (or all if fewer than 50)
+            target_connections = min(50, num_agents - 1)
+            connections = self.random.sample(list(base_graph.nodes - {super_user_id}), target_connections)
+            for node in connections:
+                base_graph.add_edge(super_user_id, node)
+
+            DisinformationModel.graph = base_graph
         self.grid = Network(DisinformationModel.graph, capacity=1, random=self.random)
 
         self.datacollector = DataCollector(
@@ -107,10 +121,16 @@ class DisinformationModel(Model):
             education_group = self.random.choice(list(EducationGroup))
             sex_group = self.random.choice([0, 1])  # 0 = female, 1 = male
 
+            # Assign super user infected status explicitly
+            if node == num_agents - 1:
+                initial_state = State.INFECTED
+            else:
+                initial_state = State.SUSCEPTIBLE
+
             agent = UserAgent(
                 model=self,
                 unique_id=node,
-                initial_state=State.SUSCEPTIBLE,
+                initial_state=initial_state,
                 age_group=age_group,
                 education_group=education_group,
                 sex_group=sex_group,
