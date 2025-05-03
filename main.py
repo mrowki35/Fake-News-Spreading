@@ -77,6 +77,13 @@ model_params = {
         max=1000,
         step=10,
     ),
+    "avg_node_degree": Slider(
+        label="Average Number of Connections",
+        value=3,
+        min=3,
+        max=8,
+        step=1,
+    ),
     "initial_outbreak_size": Slider(
         label="Initial Infected",
         value=5,
