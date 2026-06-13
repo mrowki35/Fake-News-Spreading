@@ -26,7 +26,6 @@ class UserAgent(FixedAgent):
         b = self.model.education_weight
         c = self.model.sex_weight
 
-        # Lookup distribution values based on agent's state and group
         age_score = AgeDistribution[self.state][self.age_group] * a * self.random.uniform(0.9, 1)
         edu_score = EducationDistribution[self.state][self.education_group] * b * self.random.uniform(0.9, 1)
         sex_score = self.sex_group * c * self.random.uniform(0.05, 0.1)

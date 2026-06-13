@@ -44,18 +44,18 @@ class DisinformationModel(Model):
         initial_exposed_size=15,
         initial_doubtful_size=15,
         initial_recovered_size=10,
-        # demographic influence weights
+
         age_weight=1.0,
         education_weight=1.0,
         sex_weight=1.0,
-        # state transition thresholds
+
         threshold_SE=1.5,
         threshold_EI=1.2,
         threshold_ED=1.0,
         threshold_IR=1.3,
         threshold_DE=1.4,
         seed=None,
-        # switches for scenarios
+
         moderation=0
     ):
         super().__init__(seed=seed)
@@ -74,7 +74,7 @@ class DisinformationModel(Model):
         self.threshold_IR = float(threshold_IR)
         self.threshold_DE = float(threshold_DE)
 
-        # Safety check: total of all initial states cannot exceed total agents
+
         total_initial = (
             initial_outbreak_size + initial_exposed_size +
             initial_doubtful_size + initial_recovered_size
@@ -82,7 +82,6 @@ class DisinformationModel(Model):
         if total_initial > num_agents:
             raise ValueError("Initial state counts exceed total number of agents.")
 
-        # Build network
         prob = avg_node_degree / num_agents
         if DisinformationModel.graph is None or num_agents != DisinformationModel.graph.number_of_nodes() or DisinformationModel.prob != prob or DisinformationModel.seed != seed:
             DisinformationModel.seed = seed
@@ -100,7 +99,7 @@ class DisinformationModel(Model):
             }
         )
 
-        # Create all agents as SUSCEPTIBLE first
+
         all_cells = list(self.grid.all_cells)
         for node, cell in zip(DisinformationModel.graph.nodes, all_cells):
             age_group = self.random.choice(list(AgeGroup))
@@ -118,7 +117,6 @@ class DisinformationModel(Model):
             )
             cell.agents.append(agent)
 
-        # Assign initial states to random agents
         state_assignments = [
             (initial_outbreak_size, State.INFECTED),
             (initial_exposed_size, State.EXPOSED),
@@ -136,7 +134,6 @@ class DisinformationModel(Model):
                 )
                 for a in selected.agents:
                     a.state = state
-                # Remove already assigned cells from the pool
                 remaining_cells = CellCollection(
                     [c for c in remaining_cells if c not in selected],
                     random=self.random
